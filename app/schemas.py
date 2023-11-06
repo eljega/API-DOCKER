@@ -1,13 +1,17 @@
 from pydantic import BaseModel
+from typing import Optional
+import datetime
 
-class DataBase(BaseModel):
-    content: str
+class WeatherDataCreate(BaseModel):
+    latitude: float
+    longitude: float
+    temperature: float
+    wind_speed: float
+    # Agrega más campos según los datos que recibas del servicio externo.
 
-class DataCreate(DataBase):
-    pass
-
-class Data(DataBase):
+class WeatherData(WeatherDataCreate):
     id: int
+    recorded_at: Optional[datetime.datetime] = None
 
     class Config:
         orm_mode = True

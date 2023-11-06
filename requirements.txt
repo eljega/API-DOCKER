@@ -5,3 +5,4 @@ async-sqlalchemy==1.0.0
 aiomysql==0.2.0
 pydantic==2.4.2
 httpx==0.25.1
+WeatherData==0.0.21
