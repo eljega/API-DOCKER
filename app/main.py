@@ -2,9 +2,16 @@ from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from . import models, schemas, database
 from .database import engine
+from fastapi import FastAPI, HTTPException
+import httpx
+
 
 
 models.Base.metadata.create_all(bind=engine)
+
+# Reemplaza 'your_api_key' con tu clave de API real de Dark Sky
+DARKSKY_API_KEY = '209c0a67aamsh03178906980785bp12106cjsnd81bba3eef39'
+DARKSKY_URL = 'https://dark-sky.p.rapidapi.com'
 
 
 app = FastAPI()
@@ -17,13 +24,22 @@ def get_db():
     finally:
         db.close()
 
+
 @app.get("/api/data")
-async def get_data():
-    # Aquí iría la lógica para obtener datos de una API externa
-    # Por ejemplo, utilizando 'requests' o 'httpx' para hacer una llamada HTTP
-    # Debes reemplazar 'external_data' con la respuesta de la API externa
-    external_data = {"sample_data": "This is a test"}
-    return external_data
+async def get_data(latitude: float, longitude: float):
+    headers = {
+        'X-RapidAPI-Key': DARKSKY_API_KEY,
+        'X-RapidAPI-Host': "dark-sky.p.rapidapi.com"
+    }
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"{DARKSKY_URL}/{latitude},{longitude}", headers=headers, params={"units": "auto", "lang": "en"})
+            response.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(status_code=e.response.status_code, detail=str(e))
+
+        data = response.json()
+        return data
 
 @app.post("/api/data", response_model=schemas.Data)
 async def post_data(data: schemas.DataCreate, db: Session = Depends(get_db)):

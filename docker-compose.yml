@@ -10,15 +10,20 @@ services:
       MYSQL_DATABASE: pruebatecnica
       MYSQL_USER: eljega
       MYSQL_PASSWORD: 12345
+    ports:
+      - "3306:3306" # Exponiendo el puerto MySQL si necesitas acceder desde la máquina host.
+
   api:
     build: .
     command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
+      - "8000:8000" # Asegúrate de que el puerto aquí coincida con el puerto UVICORN en el comando.
     depends_on:
       - db
+    environment:
+      - DATABASE_URL=mysql://eljega:12345@db:3306/pruebatecnica # Asegúrate de usar las credenciales correctas y el nombre de la base de datos.
 
 volumes:
   db_data:
