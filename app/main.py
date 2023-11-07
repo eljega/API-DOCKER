@@ -7,23 +7,29 @@ from .database import engine
 from .models import Base
 from sqlalchemy.future import select
 
+# Inicializa la instancia de FastAPI.
 app = FastAPI()
 
 
+# Define las constantes para la API de Meteosource.
 METEOSOURCE_API_KEY = 'API-KEY DE LA API LLAMADA AI Weather by Meteosource'
 METEOSOURCE_URL = 'https://ai-weather-by-meteosource.p.rapidapi.com'
 
+
+# Evento de inicio para crear tablas en la base de datos si no existen.
 @app.on_event("startup")
 async def startup():
     async with engine.begin() as conn:
        
         await conn.run_sync(Base.metadata.create_all)
 
-# Dependency
+# Dependencia para obtener la sesión de la base de datos.
 async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
 
+
+# Endpoint para obtener el clima actual mediante coordenadas geográficas.
 @app.get("/api/weather")
 async def get_weather(latitude: float, longitude: float, timezone: str = "auto", language: str = "en", units: str = "auto", db: AsyncSession = Depends(get_db)):
     headers = {
@@ -47,6 +53,8 @@ async def get_weather(latitude: float, longitude: float, timezone: str = "auto",
         data = response.json()
         return data
 
+
+# Endpoint para almacenar datos del clima en la base de datos.
 @app.post("/api/data", response_model=schemas.WeatherData)
 async def post_data(weather_data: schemas.WeatherDataCreate, db: AsyncSession = Depends(get_db)):
     db_weather_data = models.WeatherData(**weather_data.dict())
@@ -56,7 +64,7 @@ async def post_data(weather_data: schemas.WeatherDataCreate, db: AsyncSession = 
     return db_weather_data
 
 
-
+# Endpoint para obtener datos del clima por ID desde la base de datos.
 @app.get("/api/data/{data_id}", response_model=schemas.WeatherData)
 async def get_data_by_id(data_id: int, db: AsyncSession = Depends(get_db)):
     statement = select(models.WeatherData).where(models.WeatherData.id == data_id)
