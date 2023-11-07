@@ -6,10 +6,10 @@ services:
       - db_data:/var/lib/mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: pruebatecnica
-      MYSQL_USER: eljega
-      MYSQL_PASSWORD: 12345
+      MYSQL_USER: usuario
+      MYSQL_PASSWORD: contraseña
     ports:
       - "3306:3306"
 
@@ -23,7 +23,7 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=mysql+aiomysql://eljega:12345@db:3306/pruebatecnica
+      - DATABASE_URL=mysql+aiomysql://usuario:contraseña@db:3306/pruebatecnica
 
 volumes:
   db_data:

@@ -7,7 +7,7 @@ class WeatherDataCreate(BaseModel):
     longitude: float
     temperature: float
     wind_speed: float
-    # Agrega más campos según los datos que recibas del servicio externo.
+
 
 class WeatherData(WeatherDataCreate):
     id: int
